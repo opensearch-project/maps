@@ -2,6 +2,7 @@
 
 <img src="https://opensearch.org/assets/img/opensearch-logo-themed.svg" height="64px">
 
+- [Welcome!](#welcome)
 - [OpenSearch Maps](#opensearch-maps)
 - [Project Resources](#project-resources)
 - [Code of Conduct](#code-of-conduct)
