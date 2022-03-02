@@ -22,10 +22,11 @@ This document explains who the maintainers are (see below), what they do in this
 
 | Maintainer               | GitHub ID                                   | Affiliation |
 | ------------------------ | ------------------------------------------- | --------- |
+| Junqiu Lei               | [junqiu-lei](https://github.com/junqiu-lei) |  Amazon   |
+| Shivam Dhar              | [Shivamdhar](https://github.com/Shivamdhar) |  Amazon   |
 | Vamshi Vijay Nakkirtha   | [vamshin](https://github.com/vamshin)       |  Amazon   |
 | Vijayan Balasubramanian  | [VijayanB](https://github.com/VijayanB)     |  Amazon   |
-| Shivam Shivam            | [Shivamdhar](https://github.com/Shivamdhar) |  Amazon   |
-| Junqiu Lei               | [junqiu-lei](https://github.com/junqiu-lei) |  Amazon   |
+
 
 ## Maintainer Responsibilities
 
