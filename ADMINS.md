@@ -7,6 +7,7 @@ This document explains who the admins are (see below), what they do in this repo
 | Admin           | GitHub ID                               | Affiliation |
 | --------------- | --------------------------------------- | ----------- |
 | Henri Yandell   | [hyandell](https://github.com/hyandell) | Amazon      |
+| Junqiu Lei      | [junqiu-lei](https://github.com/junqiu-lei) |  Amazon   |
 
 ## Admin Responsibilities
 
