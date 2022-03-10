@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+* Define AWS resources for tiles generation.
+*/
 import { Environment, Stack, StackProps } from 'aws-cdk-lib';
 import * as path from 'path';
 import { Construct } from 'constructs';

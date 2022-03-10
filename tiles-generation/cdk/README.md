@@ -1,49 +1,46 @@
 # Tiles generation pipeline with CDK
 
- This project in `tilesGenerationPipeline` folder helps to build a raster map tiles generaion pipeline on Amazon ECS in AWS CDK. The docker base image is come from https://github.com/Overv/openstreetmap-tile-server
-.
+ This project in `tilesGenerationPipeline` folder helps to build a raster map tiles generaion pipeline on Amazon ECS in AWS CDK. The docker base image is come from https://github.com/Overv/openstreetmap-tile-server.
+
+## Diagram
+![alt text](./tiles-generation-diagram.png).
+
 #  Getting Started
-
 ## Prerequisites
-Install AWS CLI and Node.js first.
 
-## AWS Prerequisites
-Have an AWS account and administrator permissions to this account. Use `aws configure` to set account and region.
+### Install Node.js
 
-## Update configuration/performance tunning
-The tiles generation configuration could be updated at `cdk.ts`. For example, Users can custom tiles generation area, zoom leve, schedule generation, etc.
+Visit https://nodejs.org/en/ to install Node.js
+### Install AWS CDK Toolkit
 
-## Deploy test tile generation stack
-It's highly recommended to test the tile generation process with light data before running whole planet.
+```
+npm install -g aws-cdk
+```
+### AWS Prerequisites
+Configure [aws credentials](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites)
+## Deployment
 
-* Replace `YourS3BucketName` to your bucket name to receive generated tiles. Confirm your S3 bucket name passed into CDK
-```
-#Pass S3 Bucket name to CDK.
-cdk synth --context TILE_S3_BUCKET=YourS3BucketName TestTileGenerationStack
-```
-* Deploy stack
-```
-cdk deploy TestTileGenerationStack -c TILE_S3_BUCKET=YourS3BucketName
-```
+### Deploy steps
 
-* Check test stack result
-From AWS console to check ECS task status, after checking test ECS task finished exit with 0, disable the ECS task schedule and change ASG EC2 instance desiredCapacity to 0 to save resources.
+1. (Optional)The tiles generation configuration could be customized at `cdk.ts`. For example, Users can customize tiles generation area, zoom level, schedule generation, etc.
 
-## Deploy planet tile generation stack
 
-* Replace `YourS3BucketName` to your bucket name to receive generated tiles. Confirm your S3 bucket name passed into CDK
+2. The context of `TILE_S3_BUCKET` are required in CDK deployment - The name of the S3 bucket you will use to deploy. This bucket must be in the same aws account. This bucket is used to store generated tiles.
+
+3. Deploy stacks
+
+* For test tile generation stack, If you will need cutomize configuration or update the stack, It's recommended to deploy the light data tile generation stack for test before deploy planet tile generation stack.
 ```
-#Pass S3 Bucket name to CDK.
-cdk synth --context TILE_S3_BUCKET=YourS3BucketName PlanetTileGenerationStack
-```
-* Deploy stack
-```
-cdk deploy PlanetTileGenerationStack -c TILE_S3_BUCKET=YourS3BucketName
+cdk deploy TestTileGenerationStack --context TILE_S3_BUCKET=YourS3BucketName
 ```
 
-* Check planet stack result
-From AWS console to check ECS task status, after checking test ECS task finished exit with 0, disable the ECS task schedule and change ASG EC2 instance desiredCapacity to 0 to save resources.
+* For planet tile generation stack
+```
+cdk deploy PlanetTileGenerationStack --context TILE_S3_BUCKET=YourS3BucketName
+```
+4. Check stack result
 
+* From AWS console to check ECS task status, after checking test ECS task finished exit with 0, disable the ECS task schedule and change ASG EC2 instance desiredCapacity to 0 to save resources.
 
 ## Useful commands
 
