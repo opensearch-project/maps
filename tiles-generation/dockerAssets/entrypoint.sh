@@ -117,7 +117,7 @@ function servemap() {
 
     # Upload to S3 Bucket
     currentTime=$(date "+%Y%m%d%H%M%S")
-    aws s3 cp /var/lib/mod_tile s3://${TILE_S3_BUCKET}/tiles_${currentTime} --recursive
+    aws s3 cp /var/lib/mod_tile s3://${TILE_S3_BUCKET}/${currentTime}/tiles --recursive
 
     service postgresql stop
 }
