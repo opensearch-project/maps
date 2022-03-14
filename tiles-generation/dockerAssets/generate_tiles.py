@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+#  Copyright OpenSearch Contributors
+#  SPDX-License-Identifier: Apache-2.0
+
 # Adapted from https://svn.openstreetmap.org/applications/rendering/mapnik/generate_tiles.py
 
 from math import pi,sin,log,exp,atan
