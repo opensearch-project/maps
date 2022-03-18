@@ -41,10 +41,10 @@ cdk deploy TestTileGenerationStack --context TILE_S3_BUCKET=S3BucketName
 cdk deploy PlanetTileGenerationStack --context TILE_S3_BUCKET=S3BucketName
 ```
 
-4. Execute tiles generation. Once stack deployed, you will get the outputs of `ClusterName`, `TaskDefinitionName`, `CapacityProviderName` on the terminal end. Use them on the below command.
+4. Execute tiles generation. Once stack deployed, you will get the outputs of `ClusterName`, `TaskDefinitionArn`, `CapacityProviderName` on the terminal end. Use them on the below command.
 
 ```
-aws ecs run-task --cluster ClusterName --task-definition TaskDefinitionName --capacity-provider-strategy capacityProvider=CapacityProviderName
+aws ecs run-task --cluster ClusterName --task-definition TaskDefinitionArn --capacity-provider-strategy capacityProvider=CapacityProviderName
 ```
 
 5. Check result. On AWS management console, you can check ECS task logs, after ECS test task exited with 0, the maps tiles will be uploaded to S3 bucket.
