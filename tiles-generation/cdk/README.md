@@ -1,13 +1,22 @@
 # Tiles generation pipeline with CDK
 
- This project in `tilesGenerationPipeline` folder helps to build a raster map tiles generaion pipeline on Amazon ECS in AWS CDK. The docker base image is come from https://github.com/Overv/openstreetmap-tile-server.
+ The tiles generation stack builds a raster map tiles generation pipeline on [Amazon ECS](https://aws.amazon.com/ecs/) using [AWS CDK](https://aws.amazon.com/cdk/). The docker base image used in ECS comes from the [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) project.
 
 ## Diagram
 ![alt text](./tiles-generation-diagram.png).
 
-#  Getting Started
-## Prerequisites
+Step1: Deploy CDK stack, prepare AWS resources, it will:
+* Build and upload docker image to ECR
+* Create ECS autoscaling provider and initialized with 0 EC2 instance
+* Create ECS task definition
 
+Step2: Execute ECS tiles task by run-task command, it will:
+* Request new EC2 instance and volume created from autoscaling provider
+* Start running task work
+* Tiles images set with version controlled name will be uploaded to S3 bucket
+* Once task finished, EC2 instance and volumes will be destroyed by autoscaling provider 
+
+## Prerequisites
 ### Install Node.js
 Visit [here](https://nodejs.org/en/) to install Node.js
 
@@ -19,7 +28,7 @@ npm install -g aws-cdk
 ### Install AWS CLI
 Visit [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) to install AWS CLI
 ### AWS Prerequisites
-Visit [here](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites) to configure aws credentials. 
+Visit [here](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites) to configure aws credentials
 ## Deployment
 
 ### Deploy steps
@@ -29,19 +38,19 @@ Visit [here](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#g
 
 2. A S3 bucket is required in CDK deployment to store generated tiles. The context name `TILE_S3_BUCKET` you will use to deploy. This bucket must be in the same aws account.
 
-3. Deploy CDK stacks, all AWS resources defined within the scope of a stack
+3. Deploy CDK stacks, all AWS resources defined within the scope of a stack.
 
-* Test tile generation stack, it's used to test with light data for development and tuning performance.
+* Test tile generation stack, it's used to test with light data for development and tuning performance. Since planet tiles generation task will take days, when you want to update the code source, it's recommended to test first with the tile generation test stack.
 ```
 cdk deploy TestTileGenerationStack --context TILE_S3_BUCKET=S3BucketName
 ```
 
-* Planet tile generation stack
+* Planet tile generation stack, currently we are using OSM planet data from [OpenStreetMap on AWS](https://registry.opendata.aws/osm/), the ECS task will download the latest version PBF file from there.
 ```
 cdk deploy PlanetTileGenerationStack --context TILE_S3_BUCKET=S3BucketName
 ```
 
-4. Execute tiles generation. Once stack deployed, you will get the outputs of `ClusterName`, `TaskDefinitionArn`, `CapacityProviderName` on the terminal end. Use them on the below command.
+4. Execute tiles generation. Once stack deployed, note the `ClusterName`, `TaskDefinitionArn`, `CapacityProviderName` from the output of the command. Use them on the below command.
 
 ```
 aws ecs run-task --cluster ClusterName --task-definition TaskDefinitionArn --capacity-provider-strategy capacityProvider=CapacityProviderName
