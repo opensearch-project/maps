@@ -9,11 +9,10 @@
  * The entrypoint of the CDK application.
  */
 
-import { App, Duration } from 'aws-cdk-lib';
+import { App } from 'aws-cdk-lib';
 import { TileGenerationStack } from '../lib/tile-generation-stack'
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as asc from "aws-cdk-lib/aws-autoscaling";
-import * as event from "aws-cdk-lib/aws-events"
 
 const app = new App();
 
@@ -64,8 +63,6 @@ new TileGenerationStack(app, 'TestTileGenerationStack', {
   dockerEnv: testDockerEnv,
   // Memory reservation for the task.
   memoryReservationMiB: 25000,
-  // Schedule the task to execute.
-  schedule: event.Schedule.rate(Duration.minutes(1))
 });
 
 const PlanetInstanceType = ec2.InstanceType.of(ec2.InstanceClass.X1E, ec2.InstanceSize.XLARGE8);
@@ -98,6 +95,5 @@ new TileGenerationStack(app, 'PlanetTileGenerationStack', {
   volume: PlanetEC2Volume,
   sharedMemorySize: 1000,
   dockerEnv: planetDockerEnv,
-  memoryReservationMiB: 900000,
-  schedule: event.Schedule.rate(Duration.minutes(1))
+  memoryReservationMiB: 900000
 });
