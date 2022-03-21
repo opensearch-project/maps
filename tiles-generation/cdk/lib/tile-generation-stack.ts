@@ -13,7 +13,6 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as asc from "aws-cdk-lib/aws-autoscaling";
-import * as autoscaling from "aws-cdk-lib/aws-autoscaling";
 
  export interface TileGenerationStackProps extends StackProps {
     env: Environment,
@@ -47,7 +46,7 @@ export class TileGenerationStack extends Stack {
 
         new CfnOutput(this, 'ClusterName', { value: cluster.clusterName });
 
-        const autoScalingGroup = new autoscaling.AutoScalingGroup(this, `autoScalingGroup-${this.stackName}`, {
+        const autoScalingGroup = new asc.AutoScalingGroup(this, `autoScalingGroup-${this.stackName}`, {
             vpc,
             instanceType: props.instanceType,
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
