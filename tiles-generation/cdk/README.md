@@ -25,7 +25,6 @@ Visit [here](https://nodejs.org/en/) to install Node.js
 npm install -g aws-cdk
 ```
 
-
 ### Install AWS CLI
 Visit [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) to install AWS CLI
 ### AWS Prerequisites
