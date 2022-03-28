@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '16.x'
       
-      - name: Install cdk-cli  & cdk-lib
+      - name: Install cdk-cli & cdk-lib
         run: |
           npm install -g aws-cdk 
           cd tiles-generation/cdk
