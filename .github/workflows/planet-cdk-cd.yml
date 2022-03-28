@@ -1,4 +1,4 @@
-name: Test Tiles Generation CDK CD
+name: Planet Tiles Generation CDK CD
 
 on: 
     push:
@@ -8,7 +8,7 @@ on:
         - 'tiles-generation/**'
 
 jobs:
-  tiles-generation-cdk-ci:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,9 +21,6 @@ jobs:
       
       - name: Install cdk-cli  & cdk-lib & aws-cli
         run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
           npm install -g aws-cdk
           cd tiles-generation/cdk
           npm install aws-cdk-lib
@@ -38,21 +35,9 @@ jobs:
       - name: Synth CDK
         run: |
           cd tiles-generation/cdk
-          cdk synth TestTileGenerationStack --context TILE_S3_BUCKET=${{secrets.TILE_S3_BUCKET}}
+          cdk synth PlanetTileGenerationStack --context TILE_S3_BUCKET=${{secrets.TILE_S3_BUCKET}}
 
       - name: Deploy CDK
         run: |
           cd tiles-generation/cdk
-          cdk deploy TestTileGenerationStack --context TILE_S3_BUCKET=${{secrets.TILE_S3_BUCKET}} --outputs-file ./cdk-outputs.json --require-approval never
-
-      - name: Run ECS task
-        run: |
-          ClusterName=`jq -r '.TestTileGenerationStack .ClusterName' tiles-generation/cdk/cdk-outputs.json`
-          CapacityProviderName=`jq -r '.TestTileGenerationStack .CapacityProviderName' tiles-generation/cdk/cdk-outputs.json`
-          TaskDefinitionArn=`jq -r '.TestTileGenerationStack .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs.json`
-          echo $ClusterName
-          echo $CapacityProviderName
-          echo $TaskDefinitionArn
-          AWS_PAGER="" aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
-
-
+          cdk deploy PlanetTileGenerationStack --context TILE_S3_BUCKET=${{secrets.TILE_S3_BUCKET}} --require-approval never

@@ -1,15 +1,16 @@
-name: Test Tiles Generation CDK CD
+name: Test tiles generation CDK CD and ECS task run
 
-on:
-    pull_request:
+on: 
+  pull_request:
       branches:
         - main
       paths:
         - 'tiles-generation/**'
 
 jobs:
-  test-tiles-generation-cdk-ci:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -21,8 +22,9 @@ jobs:
       
       - name: Install cdk-cli  & cdk-lib
         run: |
+          npm install -g aws-cdk 
           cd tiles-generation/cdk
-          npm install aws-cdk aws-cdk-lib
+          npm install aws-cdk-lib
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -46,7 +48,4 @@ jobs:
           ClusterName=`jq -r '.TestTileGenerationStack .ClusterName' tiles-generation/cdk/cdk-outputs.json`
           CapacityProviderName=`jq -r '.TestTileGenerationStack .CapacityProviderName' tiles-generation/cdk/cdk-outputs.json`
           TaskDefinitionArn=`jq -r '.TestTileGenerationStack .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs.json`
-          echo $ClusterName
-          echo $CapacityProviderName
-          echo $TaskDefinitionArn
-          AWS_PAGER="" aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
+          aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
