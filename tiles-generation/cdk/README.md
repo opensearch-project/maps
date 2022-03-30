@@ -3,7 +3,7 @@
  The tiles generation stack builds a raster map tiles generation pipeline on [Amazon ECS](https://aws.amazon.com/ecs/) using [AWS CDK](https://aws.amazon.com/cdk/). The docker base image used in ECS comes from the [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) project.
 
 ## Diagram
-![alt text](./tiles-generation-diagram.png).
+![alt text](./tiles-generation-diagram.png)
 
 Step1: Deploy CDK stack, prepare AWS resources, it will:
 * Build and upload docker image to ECR
