@@ -108,9 +108,7 @@ export class TileGenerationStack extends Stack {
 
         const email = this.node.tryGetContext('EMAIL');
 
-        if (email !== "undefined") {
-            topic.addSubscription(new subscriptions.EmailSubscription(email));
-        }
+        topic.addSubscription(new subscriptions.EmailSubscription(email));
 
         const clusterArn = cluster.clusterArn;
 
