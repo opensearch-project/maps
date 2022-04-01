@@ -1,11 +1,10 @@
 /*
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Define AWS resources for tiles generation.
  */
 
-/*
-* Define AWS resources for tiles generation.
-*/
 import { CfnOutput, Environment, Stack, StackProps } from 'aws-cdk-lib';
 import * as path from 'path';
 import { Construct } from 'constructs';
@@ -13,6 +12,11 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as asc from "aws-cdk-lib/aws-autoscaling";
+import * as sns from "aws-cdk-lib/aws-sns";
+import * as subscriptions from "aws-cdk-lib/aws-sns-subscriptions"
+import * as events from "aws-cdk-lib/aws-events";
+import * as targets from "aws-cdk-lib/aws-events-targets";
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 
  export interface TileGenerationStackProps extends StackProps {
     env: Environment,
@@ -30,9 +34,9 @@ export class TileGenerationStack extends Stack {
         props: TileGenerationStackProps) {
         super(scope, id);
 
-        const uploadTestBucketName = this.node.tryGetContext('TILE_S3_BUCKET');
+        const tilesDestinationBucket = this.node.tryGetContext('TILE_S3_BUCKET');
 
-        props.dockerEnv['TILE_S3_BUCKET'] = uploadTestBucketName
+        props.dockerEnv['TILE_S3_BUCKET'] = tilesDestinationBucket;
 
         const vpc = new ec2.Vpc(this, `vpc-${this.stackName}`, {
             cidr: '10.0.0.0/16',
@@ -99,5 +103,48 @@ export class TileGenerationStack extends Stack {
             environment: props.dockerEnv,
             linuxParameters: linuxParameters
         });
+
+        const topic = new sns.Topic(this, "topic");
+
+        const email = this.node.tryGetContext('EMAIL');
+
+        if (email !== "undefined") {
+            topic.addSubscription(new subscriptions.EmailSubscription(email));
+        }
+
+        const clusterArn = cluster.clusterArn;
+
+        const rule = new events.Rule(this, `ecs-task-status-rule`, {
+            eventPattern: {
+              source: ["aws.ecs"],
+              detailType: ["ECS Task State Change"],
+              detail: {
+                  "clusterArn": [clusterArn],
+                  "lastStatus": ["RUNNING", "STOPPED"]
+              },
+            },
+        });
+
+        const taskStatusNotifyLambda = new lambda.Function(this, 'function', {
+            runtime: lambda.Runtime.NODEJS_14_X, 
+            code: lambda.Code.fromAsset("lambda"),
+            handler: "task-status-notify.handler",
+            environment: {
+                "topicArn": topic.topicArn
+            },
+        });
+
+        const lambdaRolePolicy =  new iam.PolicyStatement({
+            actions: [
+                "sns:Publish"
+            ],
+            resources: [topic.topicArn]
+        });
+
+        taskStatusNotifyLambda.addToRolePolicy(lambdaRolePolicy);
+
+        rule.addTarget(new targets.LambdaFunction(
+            taskStatusNotifyLambda
+        ));
     }
 }
