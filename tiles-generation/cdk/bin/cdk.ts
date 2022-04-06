@@ -10,7 +10,9 @@
  */
 
 import { App } from 'aws-cdk-lib';
-import { TileGenerationStack } from '../lib/tile-generation-stack'
+import { TileGenerationStack } from '../lib/tile-generation-stack';
+import { SlackNotificationStack } from '../lib/slack-notification-stack';
+import { EmailNotificationStack } from '../lib/email-notification-stack';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as asc from "aws-cdk-lib/aws-autoscaling";
 
@@ -52,7 +54,9 @@ const testDockerEnv = {
   'AUTOVACUUM':'off'
 };
 
-new TileGenerationStack(app, 'TestTileGenerationStack', {    
+const testClusterArnExportName = "testClusterArn"
+
+const testTileGenerationStack = new TileGenerationStack(app, 'TestTileGenerationStack', {    
   env: env,
   instanceType: testInstanceType,
   volume: testEC2Volume,
@@ -63,6 +67,7 @@ new TileGenerationStack(app, 'TestTileGenerationStack', {
   dockerEnv: testDockerEnv,
   // Memory reservation for the task.
   memoryReservationMiB: 25000,
+  clusterArnExportName: testClusterArnExportName
 });
 
 const PlanetInstanceType = ec2.InstanceType.of(ec2.InstanceClass.X1E, ec2.InstanceSize.XLARGE8);
@@ -88,12 +93,40 @@ const planetDockerEnv = {
   'AUTOVACUUM':'off',
 };
 
+const planetClusterArnExportName = "planetClusterArn";
+
 // Stack for generating planet tiles
-new TileGenerationStack(app, 'PlanetTileGenerationStack', {    
+const planetTileGenerationStack = new TileGenerationStack(app, 'PlanetTileGenerationStack', {    
   env: env,
   instanceType: PlanetInstanceType,
   volume: PlanetEC2Volume,
   sharedMemorySize: 1000,
   dockerEnv: planetDockerEnv,
-  memoryReservationMiB: 900000
+  memoryReservationMiB: 900000,
+  clusterArnExportName: planetClusterArnExportName
 });
+
+const testSlackNotificationStack = new SlackNotificationStack(app, 'TestSlackNotificationStack', {
+  env: env,
+  clusterArnExportName: testClusterArnExportName
+});
+testSlackNotificationStack.addDependency(testTileGenerationStack);
+
+const testEmailNotificationStack = new EmailNotificationStack(app, 'TestEmailNotificationStack', {
+  env: env,
+  clusterArnExportName: testClusterArnExportName
+});
+testEmailNotificationStack.addDependency(testTileGenerationStack);
+
+
+const planetSlackNotificationStack = new SlackNotificationStack(app, 'PlanetSlackNotificationStack', {
+  env: env,
+  clusterArnExportName: planetClusterArnExportName
+});
+planetSlackNotificationStack.addDependency(planetTileGenerationStack);
+
+const planetEmailNotificationStack = new EmailNotificationStack(app, 'PlanetEmailNotificationStack', {
+  env: env,
+  clusterArnExportName: planetClusterArnExportName
+});
+planetEmailNotificationStack.addDependency(planetTileGenerationStack);
