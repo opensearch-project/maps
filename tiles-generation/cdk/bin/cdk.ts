@@ -54,7 +54,7 @@ const testDockerEnv = {
   'AUTOVACUUM':'off'
 };
 
-const testClusterArnExportName = "testClusterArn"
+const testClusterArnExportName = "TestClusterArn"
 
 const testTileGenerationStack = new TileGenerationStack(app, 'TestTileGenerationStack', {    
   env: env,
@@ -93,7 +93,7 @@ const planetDockerEnv = {
   'AUTOVACUUM':'off',
 };
 
-const planetClusterArnExportName = "planetClusterArn";
+const planetClusterArnExportName = "PlanetClusterArn";
 
 // Stack for generating planet tiles
 const planetTileGenerationStack = new TileGenerationStack(app, 'PlanetTileGenerationStack', {    

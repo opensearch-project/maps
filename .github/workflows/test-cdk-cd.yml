@@ -10,14 +10,12 @@ on:
 jobs:
   approve:
     runs-on: ubuntu-latest
-    
     steps:
     - name: Approve
       run: echo With security reasons, pull request need to be approved before running actions.
   
   build:
     runs-on: ubuntu-latest
-    
     needs: [approve]
     environment:
         name: Pull Request
@@ -56,11 +54,12 @@ jobs:
           --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
           --context EMAIL=${{secrets.EMAIL}} \
           --context SLACK=${{secrets.SLACK}} \
-          --require-approval never
+          --require-approval never \
+          --outputs-file ./cdk-outputs.json
 
       - name: Run ECS task
         run: |
-          ClusterName=`jq -r '.TestTileGenerationStack .ClusterName' tiles-generation/cdk/cdk-outputs.json`
+          ClusterArn=`jq -r '.TestTileGenerationStack .TestClusterArn' tiles-generation/cdk/cdk-outputs.json`
           CapacityProviderName=`jq -r '.TestTileGenerationStack .CapacityProviderName' tiles-generation/cdk/cdk-outputs.json`
           TaskDefinitionArn=`jq -r '.TestTileGenerationStack .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs.json`
-          aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
+          aws ecs run-task --cluster $ClusterArn --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
