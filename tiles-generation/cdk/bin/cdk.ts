@@ -3,15 +3,14 @@
 /*
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
- */
-
-/*
+ *
  * The entrypoint of the CDK application.
  */
 
 import { App } from 'aws-cdk-lib';
 import { TileGenerationStack } from '../lib/tile-generation-stack';
 import { SlackNotificationStack } from '../lib/slack-notification-stack';
+import { EventRuleStack } from '../lib/event-rule-stack';
 import { EmailNotificationStack } from '../lib/email-notification-stack';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as asc from "aws-cdk-lib/aws-autoscaling";
@@ -54,7 +53,7 @@ const testDockerEnv = {
   'AUTOVACUUM':'off'
 };
 
-const testClusterArnExportName = "TestClusterArn"
+const testClusterArnExportName = "TestClusterArn";
 
 const testTileGenerationStack = new TileGenerationStack(app, 'TestTileGenerationStack', {    
   env: env,
@@ -106,27 +105,23 @@ const planetTileGenerationStack = new TileGenerationStack(app, 'PlanetTileGenera
   clusterArnExportName: planetClusterArnExportName
 });
 
+//ECS task state change notification stacks
 const testSlackNotificationStack = new SlackNotificationStack(app, 'TestSlackNotificationStack', {
   env: env,
-  clusterArnExportName: testClusterArnExportName
+  cluster: testTileGenerationStack.cluster
 });
-testSlackNotificationStack.addDependency(testTileGenerationStack);
 
 const testEmailNotificationStack = new EmailNotificationStack(app, 'TestEmailNotificationStack', {
   env: env,
-  clusterArnExportName: testClusterArnExportName
+  cluster: testTileGenerationStack.cluster
 });
-testEmailNotificationStack.addDependency(testTileGenerationStack);
-
 
 const planetSlackNotificationStack = new SlackNotificationStack(app, 'PlanetSlackNotificationStack', {
   env: env,
-  clusterArnExportName: planetClusterArnExportName
+  cluster: planetTileGenerationStack.cluster
 });
-planetSlackNotificationStack.addDependency(planetTileGenerationStack);
 
 const planetEmailNotificationStack = new EmailNotificationStack(app, 'PlanetEmailNotificationStack', {
   env: env,
-  clusterArnExportName: planetClusterArnExportName
+  cluster: planetTileGenerationStack.cluster
 });
-planetEmailNotificationStack.addDependency(planetTileGenerationStack);

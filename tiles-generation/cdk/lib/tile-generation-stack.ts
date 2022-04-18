@@ -24,6 +24,7 @@ import * as asc from "aws-cdk-lib/aws-autoscaling";
  }
 
 export class TileGenerationStack extends Stack {
+    public readonly cluster : ecs.Cluster;
     constructor(
         scope: Construct, 
         id: string,
@@ -40,13 +41,12 @@ export class TileGenerationStack extends Stack {
             maxAzs: 2
         });
 
-        const cluster = new ecs.Cluster(this, `cluster-${this.stackName}`, {
+        this.cluster = new ecs.Cluster(this, `cluster-${this.stackName}`, {
         vpc: vpc,
         });
 
-        new CfnOutput(this, props.clusterArnExportName, {
-            value: cluster.clusterArn,
-            exportName: props.clusterArnExportName
+        new CfnOutput(this, "ClusterName", {
+            value: this.cluster.clusterName,
         });
 
         const autoScalingGroup = new asc.AutoScalingGroup(this, `autoScalingGroup-${this.stackName}`, {
@@ -72,7 +72,7 @@ export class TileGenerationStack extends Stack {
             value: capacityProvider.capacityProviderName 
         });
 
-        cluster.addAsgCapacityProvider(capacityProvider);
+        this.cluster.addAsgCapacityProvider(capacityProvider);
 
         const taskDefinition = new ecs.Ec2TaskDefinition(this, 'TaskDef');
 

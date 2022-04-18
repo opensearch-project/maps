@@ -32,10 +32,17 @@ Visit [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-in
 
 ### CDK Deployment
 
-1. (Optional)The tiles generation configuration could be customized at `cdk.ts`. For example, Users can customize tiles generation area, zoom level, schedule generation, etc.
+1. (Optional)The tiles generation configuration could be customized at `cdk.ts`. For example, Users can customize tiles generation area, zoom level etc.
 
 
-2. Prepare context values for CDK deploy, [here](https://docs.aws.amazon.com/cdk/v2/guide/context.html#context_construct) to learn how to provide CDK runtime context. In this document, we will need provide the context values in `cdk.context.json` file.
+2. Prepare context values for CDK deploy, [here](https://docs.aws.amazon.com/cdk/v2/guide/context.html#context_construct) to learn how to provide CDK runtime context. For this guidance, we choose to provide the context values in `cdk.context.json` file.
+```
+{
+    "BUCKET":"s3BucketName",
+    "EMAIL":"emailAdress",
+    "SLACK":"slackWebHookURL"
+} 
+```
 * `BUCKET` - the S3 bucket to store generated tiles. This bucket must be in the same aws account.
 * `EMAIL` - optional, the email to receive Notification for ECS task status change.
 * `SLACK` - optional, the slack Webhook url to send notification to slakc channel.
@@ -52,7 +59,7 @@ cdk deploy TestTileGenerationStack
 cdk deploy PlanetTileGenerationStack
 ```
 
-* (Optional) If you want to get latest notification of the tiles generation ECS task state changes, you can optionally deploy the stacks. We support slack notification and email notification. You will need to update the context values of EMAIL, SLACK in `cdk.context.json` file before deploy thses stacks.
+* (Optional) If you want to get notifications of the tiles generation ECS task state changes, you can optionally deploy the below stacks. It allowes you have slack notification and email notification. You will need to update the context values of EMAIL, SLACK in `cdk.context.json` file before deploy these stacks. When creating Slack webhooks, you need set a `Content` variable for the webhook. Learn  how to [get Slack webhook URL](https://slack.com/help/articles/360041352714-Create-more-advanced-workflows-using-webhooks).
 
 ```
 cdk deploy TestSlackNotificationStack
@@ -63,10 +70,10 @@ cdk deploy PlanetEmailNotificationStack
 
 ### Execute ECS task
 
-1. Once stacks deployed, note the `ClusterArn`, `TaskDefinitionArn`, `CapacityProviderName` from the output of the command. Use them on the below command.
+1. Once stacks deployed, note the `ClusterName`, `TaskDefinitionArn`, `CapacityProviderName` from the output of the command. Use them on the below command.
 
 ```
-aws ecs run-task --cluster ClusterArn --task-definition TaskDefinitionArn --capacity-provider-strategy capacityProvider=CapacityProviderName
+aws ecs run-task --cluster ClusterName --task-definition TaskDefinitionArn --capacity-provider-strategy capacityProvider=CapacityProviderName
 ```
 
 2. Check result. On AWS management console, you can check ECS task logs, after ECS test task exited with 0, the maps tiles will be uploaded to S3 bucket.

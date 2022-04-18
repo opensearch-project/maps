@@ -1,5 +1,5 @@
 {
-    "BUCKET":"S3Bucket",
+    "BUCKET":"s3Bucket",
     "EMAIL":"emailAdress",
     "SLACK":"slackWebHookURL"
 }

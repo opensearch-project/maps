@@ -50,5 +50,5 @@ const executePostRequest = (event) => {
 exports.handler = async (event) => {
   await executePostRequest(event)
     .then(result => console.log(`Status code: ${result}`))
-    .catch(err => console.error(`Error execute the request: ${JSON.stringify(event)} => ${err}`));
+    .catch(e => console.error(`Error execute the request: ${JSON.stringify(event)} => ${e}`));
 };

@@ -59,7 +59,7 @@ jobs:
 
       - name: Run ECS task
         run: |
-          ClusterArn=`jq -r '.TestTileGenerationStack .TestClusterArn' tiles-generation/cdk/cdk-outputs.json`
+          ClusterName=`jq -r '.TestTileGenerationStack .ClusterName' tiles-generation/cdk/cdk-outputs.json`
           CapacityProviderName=`jq -r '.TestTileGenerationStack .CapacityProviderName' tiles-generation/cdk/cdk-outputs.json`
           TaskDefinitionArn=`jq -r '.TestTileGenerationStack .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs.json`
-          aws ecs run-task --cluster $ClusterArn --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
+          aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
