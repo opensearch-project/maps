@@ -19,9 +19,8 @@ import * as asc from "aws-cdk-lib/aws-autoscaling";
     volume: asc.BlockDeviceVolume,
     sharedMemorySize: number,
     dockerEnv: {[key: string]: string},
-    memoryReservationMiB: number,
-    clusterArnExportName: string
- }
+    memoryReservationMiB: number
+}
 
 export class TileGenerationStack extends Stack {
     public readonly cluster : ecs.Cluster;
