@@ -3,14 +3,14 @@
 /*
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
- */
-
-/*
+ *
  * The entrypoint of the CDK application.
  */
 
 import { App } from 'aws-cdk-lib';
-import { TileGenerationStack } from '../lib/tile-generation-stack'
+import { TileGenerationStack } from '../lib/tile-generation-stack';
+import { SlackNotificationStack } from '../lib/slack-notification-stack';
+import { EmailNotificationStack } from '../lib/email-notification-stack';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as asc from "aws-cdk-lib/aws-autoscaling";
 
@@ -52,7 +52,7 @@ const testDockerEnv = {
   'AUTOVACUUM':'off'
 };
 
-new TileGenerationStack(app, 'TestTileGenerationStack', {    
+const testTileGenerationStack = new TileGenerationStack(app, 'TestTileGenerationStack', {    
   env: env,
   instanceType: testInstanceType,
   volume: testEC2Volume,
@@ -62,7 +62,7 @@ new TileGenerationStack(app, 'TestTileGenerationStack', {
   // Docker environment for test stack ecs task
   dockerEnv: testDockerEnv,
   // Memory reservation for the task.
-  memoryReservationMiB: 25000,
+  memoryReservationMiB: 25000
 });
 
 const PlanetInstanceType = ec2.InstanceType.of(ec2.InstanceClass.X1E, ec2.InstanceSize.XLARGE8);
@@ -89,11 +89,32 @@ const planetDockerEnv = {
 };
 
 // Stack for generating planet tiles
-new TileGenerationStack(app, 'PlanetTileGenerationStack', {    
+const planetTileGenerationStack = new TileGenerationStack(app, 'PlanetTileGenerationStack', {    
   env: env,
   instanceType: PlanetInstanceType,
   volume: PlanetEC2Volume,
   sharedMemorySize: 1000,
   dockerEnv: planetDockerEnv,
   memoryReservationMiB: 900000
+});
+
+//ECS task state change notification stacks
+const testSlackNotificationStack = new SlackNotificationStack(app, 'TestSlackNotificationStack', {
+  env: env,
+  cluster: testTileGenerationStack.cluster
+});
+
+const testEmailNotificationStack = new EmailNotificationStack(app, 'TestEmailNotificationStack', {
+  env: env,
+  cluster: testTileGenerationStack.cluster
+});
+
+const planetSlackNotificationStack = new SlackNotificationStack(app, 'PlanetSlackNotificationStack', {
+  env: env,
+  cluster: planetTileGenerationStack.cluster
+});
+
+const planetEmailNotificationStack = new EmailNotificationStack(app, 'PlanetEmailNotificationStack', {
+  env: env,
+  cluster: planetTileGenerationStack.cluster
 });

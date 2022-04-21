@@ -32,12 +32,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Synth CDK
-        run: |
-          cd tiles-generation/cdk
-          cdk synth PlanetTileGenerationStack --context TILE_S3_BUCKET=${{secrets.TILE_S3_BUCKET}}
-
       - name: Deploy CDK
         run: |
           cd tiles-generation/cdk
-          cdk deploy PlanetTileGenerationStack --context TILE_S3_BUCKET=${{secrets.TILE_S3_BUCKET}} --require-approval never
+          cdk deploy \
+          PlanetTileGenerationStack \
+          PlanetEmailNotificationStack \
+          PlanetSlackNotificationStack \
+          --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
+          --context EMAIL=${{secrets.EMAIL}} \
+          --context SLACK=${{secrets.SLACK}} \
+          --require-approval never

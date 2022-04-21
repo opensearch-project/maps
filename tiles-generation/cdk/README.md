@@ -16,47 +16,67 @@ Step2: Execute ECS tiles task by run-task command, it will:
 * Tiles images set with version controlled name will be uploaded to S3 bucket
 * Once task finished, EC2 instance and volumes will be destroyed by autoscaling provider 
 
-## Prerequisites
-### Install Node.js
+## Get started
+### Prerequisites
+* Install Node.js
 Visit [here](https://nodejs.org/en/) to install Node.js
 
-### Install AWS CDK Toolkit
+* Install AWS CDK Toolkit
 ```
 npm install -g aws-cdk
 ```
 
-### Install AWS CLI
+* Install AWS CLI
 Visit [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) to install AWS CLI
-### AWS Prerequisites
-Visit [here](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites) to configure aws credentials
-## Deployment
+* Visit [here](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_prerequisites) to configure aws credentials
 
-### Deploy steps
+### CDK Deployment
 
-1. (Optional)The tiles generation configuration could be customized at `cdk.ts`. For example, Users can customize tiles generation area, zoom level, schedule generation, etc.
+1. (Optional)The tiles generation configuration could be customized at `cdk.ts`. For example, Users can customize tiles generation area, zoom level etc.
 
 
-2. A S3 bucket is required in CDK deployment to store generated tiles. The context name `TILE_S3_BUCKET` you will use to deploy. This bucket must be in the same aws account.
+2. Prepare context values for CDK deploy, [here](https://docs.aws.amazon.com/cdk/v2/guide/context.html#context_construct) to learn how to provide CDK runtime context. For this guidance, we choose to provide the context values in `cdk.context.json` file.
+```
+{
+    "BUCKET":"s3BucketName",
+    "EMAIL":"emailAdress",
+    "SLACK":"slackWebHookURL"
+} 
+```
+* `BUCKET` - the S3 bucket to store generated tiles. This bucket must be in the same aws account.
+* `EMAIL` - optional, the email to receive Notification for ECS task status change.
+* `SLACK` - optional, the slack Webhook url to send notification to slakc channel.
 
 3. Deploy CDK stacks, all AWS resources defined within the scope of a stack.
 
 * Test tile generation stack, it's used to test with light data for development and tuning performance. Since planet tiles generation task will take days, when you want to update the code source, it's recommended to test first with the tile generation test stack.
 ```
-cdk deploy TestTileGenerationStack --context TILE_S3_BUCKET=S3BucketName
+cdk deploy TestTileGenerationStack
 ```
 
 * Planet tile generation stack, currently we are using OSM planet data from [OpenStreetMap on AWS](https://registry.opendata.aws/osm/), the ECS task will download the latest version PBF file from there.
 ```
-cdk deploy PlanetTileGenerationStack --context TILE_S3_BUCKET=S3BucketName
+cdk deploy PlanetTileGenerationStack
 ```
 
-4. Execute tiles generation. Once stack deployed, note the `ClusterName`, `TaskDefinitionArn`, `CapacityProviderName` from the output of the command. Use them on the below command.
+* (Optional) If you want to get notifications of the tiles generation ECS task state changes, you can optionally deploy the below stacks. It allowes you have slack notification and email notification. You will need to update the context values of EMAIL, SLACK in `cdk.context.json` file before deploy these stacks. When creating Slack webhooks, you need set a `Content` variable for the webhook. Learn  how to [get Slack webhook URL](https://slack.com/help/articles/360041352714-Create-more-advanced-workflows-using-webhooks).
+
+```
+cdk deploy TestSlackNotificationStack
+cdk deploy TestEmailNotificationStack
+cdk deploy PlanetSlackNotificationStack
+cdk deploy PlanetEmailNotificationStack
+```
+
+### Execute ECS task
+
+1. Once stacks deployed, note the `ClusterName`, `TaskDefinitionArn`, `CapacityProviderName` from the output of the command. Use them on the below command.
 
 ```
 aws ecs run-task --cluster ClusterName --task-definition TaskDefinitionArn --capacity-provider-strategy capacityProvider=CapacityProviderName
 ```
 
-5. Check result. On AWS management console, you can check ECS task logs, after ECS test task exited with 0, the maps tiles will be uploaded to S3 bucket.
+2. Check result. On AWS management console, you can check ECS task logs, after ECS test task exited with 0, the maps tiles will be uploaded to S3 bucket.
 
 ## Useful commands
 

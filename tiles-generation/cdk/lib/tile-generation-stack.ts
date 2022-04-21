@@ -1,11 +1,10 @@
 /*
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Define AWS resources for tiles generation.
  */
 
-/*
-* Define AWS resources for tiles generation.
-*/
 import { CfnOutput, Environment, Stack, StackProps } from 'aws-cdk-lib';
 import * as path from 'path';
 import { Construct } from 'constructs';
@@ -20,19 +19,20 @@ import * as asc from "aws-cdk-lib/aws-autoscaling";
     volume: asc.BlockDeviceVolume,
     sharedMemorySize: number,
     dockerEnv: {[key: string]: string},
-    memoryReservationMiB: number,
- }
+    memoryReservationMiB: number
+}
 
 export class TileGenerationStack extends Stack {
+    public readonly cluster : ecs.Cluster;
     constructor(
         scope: Construct, 
         id: string,
         props: TileGenerationStackProps) {
         super(scope, id);
 
-        const uploadTestBucketName = this.node.tryGetContext('TILE_S3_BUCKET');
+        const tilesDestinationBucket = this.node.tryGetContext('BUCKET');
 
-        props.dockerEnv['TILE_S3_BUCKET'] = uploadTestBucketName
+        props.dockerEnv['TILE_S3_BUCKET'] = tilesDestinationBucket;
 
         const vpc = new ec2.Vpc(this, `vpc-${this.stackName}`, {
             cidr: '10.0.0.0/16',
@@ -40,11 +40,13 @@ export class TileGenerationStack extends Stack {
             maxAzs: 2
         });
 
-        const cluster = new ecs.Cluster(this, `cluster-${this.stackName}`, {
+        this.cluster = new ecs.Cluster(this, `cluster-${this.stackName}`, {
         vpc: vpc,
         });
 
-        new CfnOutput(this, 'ClusterName', { value: cluster.clusterName });
+        new CfnOutput(this, "ClusterName", {
+            value: this.cluster.clusterName,
+        });
 
         const autoScalingGroup = new asc.AutoScalingGroup(this, `autoScalingGroup-${this.stackName}`, {
             vpc,
@@ -65,13 +67,17 @@ export class TileGenerationStack extends Stack {
             enableManagedScaling: true
         });
 
-        new CfnOutput(this, 'CapacityProviderName', { value: capacityProvider.capacityProviderName });
+        new CfnOutput(this, 'CapacityProviderName', {
+            value: capacityProvider.capacityProviderName 
+        });
 
-        cluster.addAsgCapacityProvider(capacityProvider);
+        this.cluster.addAsgCapacityProvider(capacityProvider);
 
         const taskDefinition = new ecs.Ec2TaskDefinition(this, 'TaskDef');
 
-        new CfnOutput(this, 'TaskDefinitionArn', { value: taskDefinition.taskDefinitionArn });
+        new CfnOutput(this, 'TaskDefinitionArn', {
+            value: taskDefinition.taskDefinitionArn
+        });
 
         const taskRolePolicy =  new iam.PolicyStatement({
             actions: [
