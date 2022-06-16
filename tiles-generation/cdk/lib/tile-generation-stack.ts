@@ -98,7 +98,7 @@ export class TileGenerationStack extends Stack {
         });
 
         taskDefinition.addContainer('DefaultContainer', {
-            image: ecs.ContainerImage.fromAsset(path.join(__dirname, '../../dockerAssets/')),
+            image: ecs.ContainerImage.fromAsset(path.join(__dirname, '../../docker/raster-tile/')),
             memoryReservationMiB: props.memoryReservationMiB,
             command: ['generatetiles'],
             logging:logging,

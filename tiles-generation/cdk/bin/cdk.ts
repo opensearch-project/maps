@@ -56,7 +56,7 @@ const testTileGenerationStack = new TileGenerationStack(app, 'TestTileGeneration
   env: env,
   instanceType: testInstanceType,
   volume: testEC2Volume,
-  // The value for the size (in MiB) of the /dev/shm volume for container default 
+  // The value for the size (in MiB) of the /dev/shm volume for container
   // Default limit 64MB is too low for container
   sharedMemorySize: 200,
   // Docker environment for test stack ecs task
