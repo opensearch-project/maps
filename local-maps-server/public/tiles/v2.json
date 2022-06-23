@@ -1,0 +1,73 @@
+{
+  "services": [
+    {
+      "id": "road_map",
+      "name": {
+        "en": "Road map"
+      },
+      "attribution": [
+        {
+          "label": {
+            "en": "Map data © OpenStreetMap contributors"
+          },
+          "url": {
+            "en": "https://www.openstreetmap.org/copyright"
+          }
+        }
+      ],
+      "formats": [
+        {
+          "locale": "en",
+          "format": "raster",
+          "url": "http://localhost:8080/tiles/osm-default.json"
+        }
+      ]
+    },
+    {
+      "id": "road_map_desaturated",
+      "name": {
+        "en": "Road map - desaturated"
+      },
+      "attribution": [
+        {
+          "label": {
+            "en": "Map data © OpenStreetMap contributors"
+          },
+          "url": {
+            "en": "https://www.openstreetmap.org/copyright"
+          }
+        }
+      ],
+      "formats": [
+        {
+          "locale": "en",
+          "format": "raster",
+          "url": "http://localhost:8080/tiles/osm-desaturated.json"
+        }
+      ]
+    },
+    {
+      "id": "dark_map",
+      "name": {
+        "en": "Road map - dark"
+      },
+      "attribution": [
+        {
+          "label": {
+            "en": "Map data © OpenStreetMap contributors"
+          },
+          "url": {
+            "en": "https://www.openstreetmap.org/copyright"
+          }
+        }
+      ],
+      "formats": [
+        {
+          "locale": "en",
+          "format": "raster",
+          "url": "http://localhost:8080/tiles/osm-dark.json"
+        }
+      ]
+    }
+  ]
+}
