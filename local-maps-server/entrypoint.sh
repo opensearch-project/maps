@@ -5,14 +5,16 @@ set -e
 usage() {
     echo "usage: <import|run>"
     echo "commands:"
-    echo "    import: Import raster tiles set to "
+    echo "    import: Import raster tiles set"
     echo "    run: Serve tiles at /tile/data/{z}/{x}/{y}.png, manifest at /manifest.json"
     echo "environment variables:"
-    echo "    DOWNLOAD_TILES: url to download raster image tiles set from OpenSearch maps service"
+    echo "    DOWNLOAD_TILES: the url to download raster image tiles set from OpenSearch maps service"
+    echo "    HOST_URL: the host machine ip address"
 }
 
 if [ "${1}" = "run" ]; then
-    node app.js
+    npm run build
+    npm run start
 fi
 
 if [ "${1}" = "import" ]; then

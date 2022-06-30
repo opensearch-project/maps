@@ -7,7 +7,7 @@ RUN npm install
 
 COPY . .
 
-RUN cd public/vectors && \
+RUN cd public/vectors/data && \
     wget -O vectors.zip https://staging.vectors.maps.opensearch.org/natural_earth_geo_json.zip && \
     unzip vectors.zip && \
     rm vectors.zip

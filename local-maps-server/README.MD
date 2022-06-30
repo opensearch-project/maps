@@ -1,10 +1,14 @@
-# OpenSearch Local Map Server
+# OpenSearch Local Maps Server
 
 This project helps to create a self-host maps server for OpenSearch Dashboard, for these who are not able to access to OpenSearch default maps service on air-gapped environments.
 
 The server provides maps manifest url(including both maps tiles and vectors), maps tiles url and maps vectors url which are compatible with OpenSearch.
 
 ## Build docker image
+
+Install docker: https://docs.docker.com/get-docker/
+
+Build docker image under Dockerfile path
 ```
 docker build -t osm-server .
 ```
@@ -25,18 +29,19 @@ docker volume create tiles-data
 ```
 docker run \
 -e DOWNLOAD_TILES=https://staging.tiles.maps.opensearch.org/osm-raster-tile-png-z0-z8.zip \
--v tiles-data:/usr/src/app/public/tiles/data/ \
+-v tiles-data:/usr/src/app/dist/public/tiles/data/ \
 osm-server \
-run
+import
 ```
 
 Option2: Use the tiles set by yourself, you could generate the raster tiles images set(in x/y/z folder) by our [raster tile generation pipeline](https://github.com/opensearch-project/maps/tree/main/tiles-generation/cdk), and then use the x/y/z tile set absolute path as a volume to start the server.
 
-## Run  server
+## Run server
 Use created docker volume ``tiles-data``:
 ```
 docker run \
--v tiles-data:/usr/src/app/public/tiles/data/ \
+-v tiles-data:/usr/src/app/dist/public/tiles/data/ \
+-e HOST_URL='http://localhost' \
 -p 8080:8080 \
 osm-server \
 run
