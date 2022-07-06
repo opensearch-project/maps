@@ -1,5 +1,5 @@
 {
-  "name": "local-maps-server",
+  "name": "OpenSearch Maps Server",
   "description": "This project helps to create a self-host maps server for OpenSearch Dashboard, for these who are not able to access to OpenSearch default maps service on air-gapped environments.",
   "version": "1.0.0",
   "main": "app.ts",

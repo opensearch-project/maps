@@ -1,4 +1,4 @@
-# OpenSearch Local Maps Server
+# OpenSearch Maps Server
 
 This project helps to create a self-host maps server for OpenSearch Dashboard, for these who are not able to access to OpenSearch default maps service on air-gapped environments.
 
@@ -23,24 +23,24 @@ Option1: Use the tiles set provided by OpenSearch maps service
 docker volume create tiles-data
 ```
 * Then download tiles set from OpenSearch maps service, we now have 0-8 and 0-10 planet tiles set available.
-  * https://staging.tiles.maps.opensearch.org/osm-raster-tile-png-z0-z8.zip
-  * https://staging.tiles.maps.opensearch.org/osm-raster-tile-png-z0-z10.zip
+  * https://maps.opensearch.org/offline/planet-osm-default-z0-z8-20220613.tar.gz
+  * https://maps.opensearch.org/offline/planet-osm-default-z0-z10-20220613.tar.gz
 
 ```
 docker run \
--e DOWNLOAD_TILES=https://staging.tiles.maps.opensearch.org/osm-raster-tile-png-z0-z8.zip \
--v tiles-data:/usr/src/app/dist/public/tiles/data/ \
+-e DOWNLOAD_TILES=https://maps.opensearch.org/offline/planet-osm-default-z0-z8-20220613.tar.gz \
+-v tiles-data:/usr/src/app/public/tiles/data/ \
 osm-server \
 import
 ```
 
-Option2: Use the tiles set by yourself, you could generate the raster tiles images set(in x/y/z folder) by our [raster tile generation pipeline](https://github.com/opensearch-project/maps/tree/main/tiles-generation/cdk), and then use the x/y/z tile set absolute path as a volume to start the server.
+Option2: Use the tiles set by yourself, you could generate the raster tiles images set(in z/x/y folder) by our [raster tile generation pipeline](https://github.com/opensearch-project/maps/tree/main/tiles-generation/cdk), and then use the x/y/z tile set absolute path as a volume to start the server.
 
 ## Run server
 Use created docker volume ``tiles-data``:
 ```
 docker run \
--v tiles-data:/usr/src/app/dist/public/tiles/data/ \
+-v tiles-data:/usr/src/app/public/tiles/data/ \
 -e HOST_URL='http://localhost' \
 -p 8080:8080 \
 osm-server \
@@ -50,7 +50,7 @@ run
 Use your own tiles set by:
 ```
 docker run \
--v /absolute/path/to/tiles/:/usr/src/app/public/tiles/data/ \
+-v /absolute/path/to/tiles/:/usr/src/app/dist/public/tiles/data/ \
 -p 8080:8080 \
 osm-server \
 run

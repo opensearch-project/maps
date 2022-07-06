@@ -4,13 +4,12 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm install
-
 COPY . .
 
 RUN cd public/vectors/data && \
-    wget -O vectors.zip https://staging.vectors.maps.opensearch.org/natural_earth_geo_json.zip && \
-    unzip vectors.zip && \
-    rm vectors.zip
+    wget -O vectors.tar.gz https://maps.opensearch.org/offline/natural-earth-geo-json.tar.gz && \
+    tar -xzf vectors.tar.gz --strip-components=1 && \
+    rm vectors.tar.gz
 
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
