@@ -1,6 +1,6 @@
 # Tiles generation pipeline with CDK
 
- The tiles generation stack builds a raster map tiles generation pipeline on [Amazon ECS](https://aws.amazon.com/ecs/) using [AWS CDK](https://aws.amazon.com/cdk/). The docker base image used in ECS comes from the [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) project.
+This project helps to build raster tiles and vector tiles generation pipeline on [Amazon ECS](https://aws.amazon.com/ecs/) using [AWS CDK](https://aws.amazon.com/cdk/). The raster tiles generation docker base image comes from the [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) project. The vector tiles generation leverage [Planetiler](https://github.com/onthegomap/planetiler) to generate tiles into MBTiles(sqlite) and then leverage [MBUtil](https://github.com/mapbox/mbutil) to extract it to PBF(Google Protobufs) files.
 
 ## Diagram
 ![alt text](./tiles-generation-diagram.png)
@@ -39,33 +39,40 @@ Visit [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-in
 ```
 {
     "BUCKET":"s3BucketName",
-    "EMAIL":"emailAdress",
+    "EMAIL":"emailAddress",
     "SLACK":"slackWebHookURL"
 } 
 ```
 * `BUCKET` - the S3 bucket to store generated tiles. This bucket must be in the same aws account.
 * `EMAIL` - optional, the email to receive Notification for ECS task status change.
-* `SLACK` - optional, the slack Webhook url to send notification to slakc channel.
+* `SLACK` - optional, the slack Webhook url to send notification to Slack channel.
 
 3. Deploy CDK stacks, all AWS resources defined within the scope of a stack.
 
-* Test tile generation stack, it's used to test with light data for development and tuning performance. Since planet tiles generation task will take days, when you want to update the code source, it's recommended to test first with the tile generation test stack.
-```
-cdk deploy TestTileGenerationStack
-```
+- Test tile generation stack, it's used to test with light data for development and tuning performance. Since planet tiles generation task will take days, when you want to update the code source, it's recommended to test first with the tile generation test stack.
 
-* Planet tile generation stack, currently we are using OSM planet data from [OpenStreetMap on AWS](https://registry.opendata.aws/osm/), the ECS task will download the latest version PBF file from there.
-```
-cdk deploy PlanetTileGenerationStack
-```
+  - Test raster tiles
+    - `cdk deploy TestVectorTileGeneration`
+  - Test vector tiles
+    - `cdk deploy TestRasterTileGeneration`
 
-* (Optional) If you want to get notifications of the tiles generation ECS task state changes, you can optionally deploy the below stacks. It allowes you have slack notification and email notification. You will need to update the context values of EMAIL, SLACK in `cdk.context.json` file before deploy these stacks. When creating Slack webhooks, you need set a `Content` variable for the webhook. Learn  how to [get Slack webhook URL](https://slack.com/help/articles/360041352714-Create-more-advanced-workflows-using-webhooks).
+* Planet tile generation stack, currently we are using OSM planet data from [OpenStreetMap on AWS](https://registry.opendata.aws/osm/), the ECS task will download the latest PBF file from there.
+  - Planet raster tiles
+    - `cdk deploy PlanetRasterTileGeneration`
+  - Planet vector tiles
+    - `cdk deploy PlanetVectorTileGeneration`
+
+* (Optional) If you want to get notifications of the tiles generation ECS task state changes, you can optionally deploy the below stacks. It allows you get Slack notification and email notification. You will need to update the context values of EMAIL, SLACK in `cdk.context.json` file before deploy these stacks. When creating Slack webhooks, you need set a `Content` variable for the webhook. Learn  how to [get Slack webhook URL](https://slack.com/help/articles/360041352714-Create-more-advanced-workflows-using-webhooks).
 
 ```
-cdk deploy TestSlackNotificationStack
-cdk deploy TestEmailNotificationStack
-cdk deploy PlanetSlackNotificationStack
-cdk deploy PlanetEmailNotificationStack
+cdk deploy EmailSNSPlanetRasterTileGeneration
+cdk deploy EmailSNSPlanetVectorTileGeneration
+cdk deploy EmailSNSTestRasterTileGeneration
+cdk deploy EmailSNSTestVectorTileGeneration
+cdk deploy SlackSNSPlanetRasterTileGeneration
+cdk deploy SlackSNSPlanetVectorTileGeneration
+cdk deploy SlackSNSTestRasterTileGeneration
+cdk deploy SlackSNSTestVectorTileGeneration
 ```
 
 ### Execute ECS task

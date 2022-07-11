@@ -44,22 +44,42 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy CDK
+      - name: Deploy Test Raster Tile CDK
         run: |
           cd tiles-generation/cdk
           cdk deploy \
-          TestTileGenerationStack \
-          TestSlackNotificationStack \
-          TestEmailNotificationStack \
+          TestRasterTileGeneration \
+          SlackSNSTestRasterTileGeneration \
+          EmailSNSTestRasterTileGeneration \
           --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
           --context EMAIL=${{secrets.EMAIL}} \
           --context SLACK=${{secrets.SLACK}} \
           --require-approval never \
-          --outputs-file ./cdk-outputs.json
+          --outputs-file ./cdk-outputs-raster.json
 
-      - name: Run ECS task
+      - name: Run Test Raster Tiles ECS task
         run: |
-          ClusterName=`jq -r '.TestTileGenerationStack .ClusterName' tiles-generation/cdk/cdk-outputs.json`
-          CapacityProviderName=`jq -r '.TestTileGenerationStack .CapacityProviderName' tiles-generation/cdk/cdk-outputs.json`
-          TaskDefinitionArn=`jq -r '.TestTileGenerationStack .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs.json`
+          ClusterName=`jq -r '.TestRasterTileGeneration .ClusterName' tiles-generation/cdk/cdk-outputs-raster.json`
+          CapacityProviderName=`jq -r '.TestRasterTileGeneration .CapacityProviderName' tiles-generation/cdk/cdk-outputs-raster.json`
+          TaskDefinitionArn=`jq -r '.TestRasterTileGeneration .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs-raster.json`
+          aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
+
+      - name: Deploy Test Vector Tile CDK
+        run: |
+          cd tiles-generation/cdk
+          cdk deploy \
+          TestVectorTileGeneration \
+          SlackSNSTestVectorTileGeneration \
+          EmailSNSTestVectorTileGeneration \
+          --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
+          --context EMAIL=${{secrets.EMAIL}} \
+          --context SLACK=${{secrets.SLACK}} \
+          --require-approval never \
+          --outputs-file ./cdk-outputs-vector.json
+
+      - name: Run Test Vector Tiles ECS task
+        run: |
+          ClusterName=`jq -r '.TestVectorTileGeneration .ClusterName' tiles-generation/cdk/cdk-outputs-vector.json`
+          CapacityProviderName=`jq -r '.TestRasterTileGeneration .CapacityProviderName' tiles-generation/cdk/cdk-outputs-vector.json`
+          TaskDefinitionArn=`jq -r '.TestRasterTileGeneration .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs-vector.json`
           aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName

@@ -32,13 +32,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy CDK
+      - name: Deploy Planet Raster Tiles CDK
         run: |
           cd tiles-generation/cdk
           cdk deploy \
-          PlanetTileGenerationStack \
-          PlanetEmailNotificationStack \
-          PlanetSlackNotificationStack \
+          PlanetVectorTileGeneration \
+          EmailSNSPlanetRasterTileGeneration \
+          SlackSNSPlanetRasterTileGeneration \
+          --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
+          --context EMAIL=${{secrets.EMAIL}} \
+          --context SLACK=${{secrets.SLACK}} \
+          --require-approval never
+
+      - name: Deploy Planet Vector Tiles CDK
+        run: |
+          cd tiles-generation/cdk
+          cdk deploy \
+          PlanetVectorTileGeneration \
+          EmailSNSPlanetVectorTileGeneration \
+          SlackSNSPlanetVectorTileGeneration \
           --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
           --context EMAIL=${{secrets.EMAIL}} \
           --context SLACK=${{secrets.SLACK}} \
