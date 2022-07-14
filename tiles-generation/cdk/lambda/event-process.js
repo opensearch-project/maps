@@ -1,17 +1,17 @@
 /*
  * Copyright OpenSearch Contributors
  * SPDX-License-Identifier: Apache-2.0
- * 
+ *
  * Helper function to process lambda event information.
  */
 
-const getStateInformation = function(event) {
+const getStateInformation = function (event) {
     try {
         let stateInfo;
         const taskArn = event.resources;
         const taskLastStatus = event.detail.lastStatus;
         const container = event.detail.containers[0];
-    
+
         if (container === undefined) {
             if (taskLastStatus == 'PROVISIONING') {
                 stateInfo = `Task arn: ${taskArn}\n\nTask state: task in provisioning before launch`;
@@ -41,11 +41,11 @@ const getStateInformation = function(event) {
             }
         }
         return stateInfo;
-    } catch(err) {
+    } catch (err) {
         console.log(err);
     }
-}
+};
 
 module.exports = {
-    getStateInformation
-}
+    getStateInformation,
+};
