@@ -1,6 +1,10 @@
-FROM node:16
+FROM amazonlinux:2
 
 WORKDIR /usr/src/app
+
+RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash - && \
+    yum install -y nodejs wget tar gzip && \
+    yum clean all
 
 COPY package*.json ./
 RUN npm install
