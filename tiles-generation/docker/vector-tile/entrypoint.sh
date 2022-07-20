@@ -64,7 +64,7 @@ then
 
     # Upload to S3 Bucket
     currentTime=$(date "+%Y%m%d%H%M%S")
-    /s5cmd cp tiles/ s3://"${TILE_S3_BUCKET}"/"${AREA}"-VT-"${currentTime}"/vector/
+    /s5cmd cp tiles/ s3://"${TILE_S3_BUCKET}"/"${AREA}"-VT-"${currentTime}"/data/
     echo "tiles copy finished"
     exit 0
 fi

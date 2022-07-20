@@ -39,7 +39,7 @@ jobs:
           PlanetVectorTileGeneration \
           EmailSNSPlanetRasterTileGeneration \
           SlackSNSPlanetRasterTileGeneration \
-          --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
+          --context BUCKET=${{secrets.RASTER_TILES_BUCKET}} \
           --context EMAIL=${{secrets.EMAIL}} \
           --context SLACK=${{secrets.SLACK}} \
           --require-approval never
@@ -51,7 +51,7 @@ jobs:
           PlanetVectorTileGeneration \
           EmailSNSPlanetVectorTileGeneration \
           SlackSNSPlanetVectorTileGeneration \
-          --context BUCKET=${{secrets.TILE_S3_BUCKET}} \
+          --context BUCKET=${{secrets.VECTOR_TILES_BUKCET}} \
           --context EMAIL=${{secrets.EMAIL}} \
           --context SLACK=${{secrets.SLACK}} \
           --require-approval never
