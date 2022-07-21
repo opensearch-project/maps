@@ -80,6 +80,6 @@ jobs:
       - name: Run Test Vector Tiles ECS task
         run: |
           ClusterName=`jq -r '.TestVectorTileGeneration .ClusterName' tiles-generation/cdk/cdk-outputs-vector.json`
-          CapacityProviderName=`jq -r '.TestRasterTileGeneration .CapacityProviderName' tiles-generation/cdk/cdk-outputs-vector.json`
-          TaskDefinitionArn=`jq -r '.TestRasterTileGeneration .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs-vector.json`
+          CapacityProviderName=`jq -r '.TestVectorTileGeneration .CapacityProviderName' tiles-generation/cdk/cdk-outputs-vector.json`
+          TaskDefinitionArn=`jq -r '.TestVectorTileGeneration .TaskDefinitionArn' tiles-generation/cdk/cdk-outputs-vector.json`
           aws ecs run-task --cluster $ClusterName --task-definition $TaskDefinitionArn --capacity-provider-strategy capacityProvider=$CapacityProviderName
