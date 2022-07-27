@@ -1,6 +1,6 @@
 # Tiles generation pipeline with CDK
 
-This project helps to build raster tiles and vector tiles generation pipeline on [Amazon ECS](https://aws.amazon.com/ecs/) using [AWS CDK](https://aws.amazon.com/cdk/). The raster tiles generation docker base image comes from the [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) project. The vector tiles generation leverage [Planetiler](https://github.com/onthegomap/planetiler) to generate tiles into MBTiles(sqlite) and then leverage [MBUtil](https://github.com/mapbox/mbutil) to extract it to PBF(Google Protobufs) files.
+This project helps to build raster tiles and vector tiles generation pipeline on [Amazon ECS](https://aws.amazon.com/ecs/) using [AWS CDK](https://aws.amazon.com/cdk/). The raster tiles generation docker base image comes from the [openstreetmap-tile-server](https://github.com/Overv/openstreetmap-tile-server) project. The vector tiles generation leverage [Planetiler](https://github.com/onthegomap/planetiler) to generate tiles into MBTiles(SQLite) and then leverage [MBUtil](https://github.com/mapbox/mbutil) to extract it to PBF(Google Protobufs) files.
 
 ## Diagram
 ![alt text](./tiles-generation-diagram.png)
