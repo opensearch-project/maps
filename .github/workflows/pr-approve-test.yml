@@ -1,0 +1,29 @@
+name: Receive PR Test Approve
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tiles-generation/**'
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve
+        run: echo With security reasons, CDK test actions for tiles generation PR need to be approved before running.
+
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR number
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          mkdir -p ./pr
+          echo $PR_NUMBER > ./pr/pr_number
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pr_number
+          path: pr/

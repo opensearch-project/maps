@@ -1,24 +1,56 @@
-name: Test tiles generation CDK CD and ECS task run
+name: Test tiles generation CDK and ECS task run
 
-on: 
-  pull_request_target:
-      branches:
-        - main
-      paths:
-        - 'tiles-generation/**'
+on:
+  workflow_run:
+    workflows: ["Receive PR Test Approve"]
+    types:
+      - completed
 
 jobs:
-  approve:
+  comment:
     runs-on: ubuntu-latest
     steps:
-    - name: Approve
-      run: echo With security reasons, pull request need to be approved before running actions.
+      - name: 'Download artifact'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: context.payload.workflow_run.id,
+            });
+            const matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "pr_number"
+            })[0];
+            const download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            const fs = require('fs');
+            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
+      - name: 'Unzip artifact'
+        run: unzip pr_number.zip
+      - name: 'Comment on PR'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const issue_number = Number(fs.readFileSync('./pr_number'));
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: 'Test tiles generation: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+            });
   
   build:
     runs-on: ubuntu-latest
-    needs: [approve]
-    environment:
-        name: Pull Request
+    if: >
+      ${{ github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
