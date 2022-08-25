@@ -19,13 +19,6 @@ fi
 
 if [ "${1}" = "import" ]; then
     cd public/tiles/data
-    # Download planet zoom 0 - 8 as default if no data is provided
-    if [ -z "$(ls -A public/tiles/data)" ] && [ -z "${DOWNLOAD_TILES:-}" ]; then
-        echo "WARNING: No tile at public/tiles/data, importing planet tiles zoom 0-8 from OpenSearch maps service..."
-        DOWNLOAD_TILES="https://maps.opensearch.org/offline/planet-osm-default-z0-z8-20220613.tar.gz"
-
-    fi
-
     if [ -n "${DOWNLOAD_TILES:-}" ]; then
         echo "INFO: Download Tiles images: $DOWNLOAD_TILES"
         wget "$DOWNLOAD_TILES" -O tiles.tar.gz
