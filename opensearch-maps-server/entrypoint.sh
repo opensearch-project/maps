@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -21,7 +21,7 @@ if [ "${1}" = "import" ]; then
     cd public/tiles/data
     if [ -n "${DOWNLOAD_TILES:-}" ]; then
         echo "INFO: Download Tiles images: $DOWNLOAD_TILES"
-        wget "$DOWNLOAD_TILES" -O tiles.tar.gz
+        curl -SL -o tiles.tar.gz "$DOWNLOAD_TILES"
         tar -xzf tiles.tar.gz --strip-components=1
         rm tiles.tar.gz
     fi

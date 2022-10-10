@@ -23,12 +23,12 @@ Option1: Use the tiles set provided by OpenSearch maps service
 docker volume create tiles-data
 ```
 * Then download tiles set from OpenSearch maps service, we now have 0-8 and 0-10 planet tiles set available.
-  * https://maps.opensearch.org/offline/planet-osm-default-z0-z8-20220613.tar.gz
-  * https://maps.opensearch.org/offline/planet-osm-default-z0-z10-20220613.tar.gz
+  * https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz
+  * https://maps.opensearch.org/offline/planet-osm-default-z0-z10.tar.gz
 
 ```
 docker run \
--e DOWNLOAD_TILES=https://maps.opensearch.org/offline/planet-osm-default-z0-z8-20220613.tar.gz \
+-e DOWNLOAD_TILES=https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz \
 -v tiles-data:/usr/src/app/public/tiles/data/ \
 osm-server \
 import
