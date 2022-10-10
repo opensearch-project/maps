@@ -31,6 +31,19 @@ COPY --from=stage_0 /src/oss_compliance .
 RUN curl -SL https://rpm.nodesource.com/setup_16.x | bash && \
     yum install -y nodejs-16.17.1 python3 tar gzip && pip3 install requests==2.28.1 && yum clean all
 
+ARG VERSION
+ARG BUILD_DATE
+ARG PRODUCT
+
+LABEL org.label-schema.schema-version="1.0" \
+  org.label-schema.name="$PRODUCT" \
+  org.label-schema.version="$VERSION" \
+  org.label-schema.url="https://opensearch.org" \
+  org.label-schema.vcs-url="https://github.com/opensearch-project/maps" \
+  org.label-schema.license="Apache-2.0" \
+  org.label-schema.vendor="OpenSearch Project" \
+  org.label-schema.build-date="$BUILD_DATE"
+
 COPY package*.json ./
 RUN npm install
 COPY . .

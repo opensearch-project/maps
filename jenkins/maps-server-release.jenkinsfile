@@ -1,0 +1,118 @@
+lib = library(identifier: 'jenkins@1.0.0', retriever: modernSCM([
+    $class: 'GitSCMSource',
+    remote: 'https://github.com/opensearch-project/opensearch-build-libraries.git',
+]))
+
+pipeline {
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        throttleJobProperty(
+            categories: [],
+            limitOneJobWithMatchingParams: false,
+            maxConcurrentPerNode: 0,
+            maxConcurrentTotal: 1,
+            paramsToUseForLimit: '',
+            throttleEnabled: true,
+            throttleOption: 'project',
+        )
+    }
+    agent {
+        docker {
+            label 'Jenkins-Agent-AL2-X64-C54xlarge-Docker-Host'
+            image 'opensearchstaging/ci-runner:ci-runner-centos7-opensearch-build-v2'
+            args '-e JAVA_HOME=/opt/java/openjdk-11'
+            alwaysPull true
+        }
+    }
+    parameters {
+        string(
+            name: 'GIT_REFERENCE',
+            description: 'Git branch, tag, commitid for reference to checkout commit of OpenSearch core before running the gradle check.',
+            defaultValue: 'main',
+            trim: true
+        )
+    }
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+                [key: 'ref', value: '$.ref'],
+            ],
+            tokenCredentialId: 'jenkins-opensearch-maps-server-generic-webhook-token',
+            causeString: 'A commit was pushed on opensearch-project/maps repository main branch causing this workflow to run',
+            printContributedVariables: false,
+            printPostContent: false,
+            regexpFilterText: '$ref',
+            regexpFilterExpression: '^(maps-server-release)-[0-9]+$'
+        )
+    }
+    environment {
+        REPO_URL="https://github.com/opensearch-project/maps"
+        USER_BUILD_CAUSE = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+        TIMER_BUILD_CAUSE = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause')
+    }
+    stages {
+        stage('Verifications and Descriptions') {
+            steps {
+                script {
+                    def ref_final = "${GIT_REFERENCE}"
+                    def ref_url = "${REPO_URL}/commit/${GIT_REFERENCE}"
+                    if (env.USER_BUILD_CAUSE.equals('[]') && env.TIMER_BUILD_CAUSE.equals('[]')) {
+                        ref_final = ${ref}
+                        ref_url = "${REPO_URL}/releases/tag/${ref}"
+                        println("Triggered by GitHub: ${ref_url}")
+                        
+                        currentBuild.description = """GitHub: <a href="${ref_url}">${ref_url}</a>"""
+                    }
+                    else {
+                        println("Triggered by User/Timer: ${ref_url}")
+                        currentBuild.description = """User/Timer: <a href="${ref_url}">${ref_url}</a>"""
+                    }
+
+                    def MAPS_PRODUCT = "opensearch-maps-server"
+                    def MAPS_VERSION = sh (
+                        script: "cat ${MAPS_PRODUCT}/package.json | grep version | cut -d: -f2 | grep -Eo '[0-9.]+'",
+                        returnStdout: true
+                    ).trim()
+
+                    echo("${MAPS_PRODUCT}: ${MAPS_VERSION}")
+
+                    dockerBuild: {
+                        build job: 'docker-build',
+                        parameters: [
+                            string(name: 'DOCKER_BUILD_GIT_REPOSITORY', value: "${REPO_URL}"),
+                            string(name: 'DOCKER_BUILD_GIT_REPOSITORY_REFERENCE', value: "${ref_final}"),
+                            string(name: 'DOCKER_BUILD_SCRIPT_WITH_COMMANDS', value: [
+                                    'id',
+                                    'pwd',
+                                    "cd ${MAPS_PRODUCT}/",
+                                    'ls -l',
+                                    [
+                                        'bash',
+                                        'build-image-single-arch.sh',
+                                        "-v ${MAPS_VERSION}",
+                                        "-a x64",
+                                        "-f ./Dockerfile",
+                                        "-p ${MAPS_PRODUCT}"
+                                    ].join(' ')
+                            ].join(' && ')),
+                        ]
+                    }
+                    dockerCopy: {
+                        build job: 'docker-copy',
+                            parameters: [
+                                string(name: 'SOURCE_IMAGE_REGISTRY', value: 'opensearchstaging'),
+                                string(name: 'SOURCE_IMAGE', value: "${MAPS_PRODUCT}:${MAPS_VERSION}"),
+                                string(name: 'DESTINATION_IMAGE_REGISTRY', value: 'opensearchproject'),
+                                string(name: 'DESTINATION_IMAGE', value: "${MAPS_PRODUCT}:${MAPS_VERSION}")
+                            ]
+                    }
+                }
+            }
+            post {
+                always {
+                    cleanWs disableDeferredWipeout: true, deleteDirs: true
+                }
+            }
+        }
+    }
+}
