@@ -69,7 +69,8 @@ pipeline {
                     }
 
                     echo("Git checkout ${REPO_URL} on ${ref_final} for maps-server release")
-                    git url: "${REPO_URL}", branch: "${ref_final}"
+                    git url: "${REPO_URL}", branch: 'main'
+                    sh("git checkout ${ref_final}")
 
                     def MAPS_PRODUCT = "opensearch-maps-server"
                     def MAPS_VERSION = sh (
