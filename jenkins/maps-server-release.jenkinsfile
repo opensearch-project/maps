@@ -68,6 +68,9 @@ pipeline {
                         currentBuild.description = """User/Timer: <a href="${ref_url}">${ref_url}</a>"""
                     }
 
+                    echo("Git checkout ${REPO_URL} on ${ref_final} for maps-server release")
+                    checkout([$class: 'GitSCM', branches: [[name: "${ref_final}" ]], userRemoteConfigs: [[url: "${REPO_URL}"]]])
+
                     def MAPS_PRODUCT = "opensearch-maps-server"
                     def MAPS_VERSION = sh (
                         script: "cat ${MAPS_PRODUCT}/package.json | grep version | cut -d: -f2 | grep -Eo '[0-9.]+'",
