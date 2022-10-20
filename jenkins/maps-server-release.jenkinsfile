@@ -42,7 +42,7 @@ pipeline {
             printContributedVariables: false,
             printPostContent: false,
             regexpFilterText: '$ref',
-            regexpFilterExpression: '^(maps-server-release)-[0-9]+$'
+            regexpFilterExpression: '^(maps-server-release)-[0-9.]+'
         )
     }
     environment {
@@ -57,7 +57,7 @@ pipeline {
                     def ref_final = "${GIT_REFERENCE}"
                     def ref_url = "${REPO_URL}/commit/${GIT_REFERENCE}"
                     if (env.USER_BUILD_CAUSE.equals('[]') && env.TIMER_BUILD_CAUSE.equals('[]')) {
-                        ref_final = ${ref}
+                        ref_final = "${ref}"
                         ref_url = "${REPO_URL}/releases/tag/${ref}"
                         println("Triggered by GitHub: ${ref_url}")
                         
@@ -68,8 +68,14 @@ pipeline {
                         currentBuild.description = """User/Timer: <a href="${ref_url}">${ref_url}</a>"""
                     }
 
+                    if (ref_final == null || ref_final == '') {
+                        currentBuild.result = 'ABORTED'
+                        error("Missing git reference.")
+                    }
+
                     echo("Git checkout ${REPO_URL} on ${ref_final} for maps-server release")
-                    checkout([$class: 'GitSCM', branches: [[name: "${ref_final}" ]], userRemoteConfigs: [[url: "${REPO_URL}"]]])
+                    checkout scm
+                    sh("git checkout ${ref_final}")
 
                     def MAPS_PRODUCT = "opensearch-maps-server"
                     def MAPS_VERSION = sh (
