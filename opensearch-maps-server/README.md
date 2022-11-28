@@ -4,29 +4,24 @@ The self-host maps server for OpenSearch Dashboards allows users to access the d
 
 The following sections provide steps for setting up and using the self-host maps server with OpenSearch Dashboards.
 
-You can access the `maps-server` image via the official OpenSearch [Docker Hub repository](https://hub.docker.com/u/opensearchproject).
-{: .note} or build from source code.
+## Get Docker image
+You can either access the `maps-server` image via the official OpenSearch [Docker Hub repository](https://hub.docker.com/u/opensearchproject) or build from code.
 
-
-## Pull Docker image
+### Option 1: Pull Docker image from Docker Hub repository
 
 Open your terminal and run the following command:
 
 `docker pull opensearch/opensearch-maps-server`
 
-## Build docker image from source
+### Option 2: Build Docker image from code
 
-Ignore this step if pulled docker image from Docker Hub repository
-
-Install docker: https://docs.docker.com/get-docker/
-
-Build docker image under Dockerfile path
+Open your terminal and go to Dockerfile directory and run the following command:
 ```
 docker build -t maps-server .
 ```
 ---
 
-Note: Below steps use docker image from Docker Hub repository, if you use docker image from code source, change the docker image name correspondingly
+Note: Below steps use a Docker image from Docker Hub repository, if you use a Docker image built from code, change the Docker image name accordingly.
 
 ## Set up the server
 
