@@ -17,6 +17,7 @@
 
 **OpenSearch Maps** contains maps related resources:
 * Map tiles generation stack in CDK
+* Self-host maps server for OpenSearch Dashboards
 
 ## Project Resources
 

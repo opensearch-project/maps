@@ -1,69 +1,116 @@
-# OpenSearch Maps Server
+# Self-host maps server
 
-This project helps to create a self-host maps server for OpenSearch Dashboard, for these who are not able to access to OpenSearch default maps service on air-gapped environments.
+The self-host maps server for OpenSearch Dashboards allows users to access the default maps service in air-gapped environments. OpenSearch-compatible map URLs include a map manifest with map tiles and vectors, the map tiles, and the map vectors.
 
-The server provides maps manifest url(including both maps tiles and vectors), maps tiles url and maps vectors url which are compatible with OpenSearch.
+The following sections provide steps for setting up and using the self-host maps server with OpenSearch Dashboards.
 
-## Build docker image
+You can access the `maps-server` image via the official OpenSearch [Docker Hub repository](https://hub.docker.com/u/opensearchproject).
+{: .note} or build from source code.
+
+
+## Pull Docker image
+
+Open your terminal and run the following command:
+
+`docker pull opensearch/opensearch-maps-server`
+
+## Build docker image from source
+
+Ignore this step if pulled docker image from Docker Hub repository
 
 Install docker: https://docs.docker.com/get-docker/
 
 Build docker image under Dockerfile path
 ```
-docker build -t osm-server .
+docker build -t maps-server .
 ```
+---
 
-## Set up server
-We need prepare tiles set before start the server, there are 2 options:
+Note: Below steps use docker image from Docker Hub repository, if you use docker image from code source, change the docker image name correspondingly
 
-Option1: Use the tiles set provided by OpenSearch maps service
+## Set up the server
 
-* Create a docker volume to hold the tiles set:
-```
-docker volume create tiles-data
-```
-* Then download tiles set from OpenSearch maps service, we now have 0-8 and 0-10 planet tiles set available.
-  * https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz
-  * https://maps.opensearch.org/offline/planet-osm-default-z0-z10.tar.gz
+You must set up the map tiles before running the server. You have two setup options: Use the OpenSearch-provided maps service tiles set, or generate the raster tiles set.
+
+### Option 1: Use the OpenSearch-provided maps service tiles set
+
+Create a Docker volume to hold the tiles set:
+
+`docker volume create tiles-data`
+
+Download the tiles set from the OpenSearch maps service. Two planet tiles sets are available based on the desired zoom level:
+
+- Zoom Level 8 (https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz)
+- Zoom level 10 (https://maps.opensearch.org/offline/planet-osm-default-z0-z10.tar.gz)
+
+The planet tiles set for zoom level 10 (2 GB compressed/6.8 GB uncompressed) is approximately 10 times larger than the set for zoom level 8 (225 MB compressed/519 MB uncompressed).
+{: .note}
 
 ```
 docker run \
--e DOWNLOAD_TILES=https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz \
--v tiles-data:/usr/src/app/public/tiles/data/ \
-osm-server \
-import
+    -e DOWNLOAD_TILES=https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz \
+    -v tiles-data:/usr/src/app/public/tiles/data/ \
+    opensearch/opensearch-maps-server \
+    import
 ```
 
-Option2: Use the tiles set by yourself, you could generate the raster tiles images set(in z/x/y folder) by our [raster tile generation pipeline](https://github.com/opensearch-project/maps/tree/main/tiles-generation/cdk), and then use the x/y/z tile set absolute path as a volume to start the server.
+### Option 2: Generate the raster tiles set
 
-## Run server
-Use created docker volume ``tiles-data``:
+To generate the raster tiles set, use the [raster tile generation pipeline](https://github.com/opensearch-project/maps/tree/main/tiles-generation/cdk) and then use the tiles set absolute path to create a volume to start the server.
+
+## Start the server
+
+Use the following command to start the server using the Docker volume `tiles-data`. The following command is an example using host URL "localhost" and port "8080":
+
 ```
 docker run \
--v tiles-data:/usr/src/app/public/tiles/data/ \
--e HOST_URL='http://localhost' \
--p 8080:8080 \
-osm-server \
-run
+    -v tiles-data:/usr/src/app/public/tiles/data/ \
+    -e HOST_URL='http://localhost' \
+    -p 8080:8080 \
+    opensearch/opensearch-maps-server \
+    run
 ```
 
-Use your own tiles set by:
+Or, if you generated the raster tiles set, run the server using that tiles set:
+
 ```
 docker run \
--v /absolute/path/to/tiles/:/usr/src/app/dist/public/tiles/data/ \
--p 8080:8080 \
-osm-server \
-run
+    -v /absolute/path/to/tiles/:/usr/src/app/dist/public/tiles/data/ \
+    -p 8080:8080 \
+    opensearch/opensearch-maps-server \
+    run
 ```
-Then you can check:
-* Map manifest: http://localhost:8080/manifest.json
-* Map tiles: http://localhost:8080/tiles/data/{z}/{x}/{y}.png
-* Map tiles demo: http://localhost:8080
+To access the tiles set, open the URLs in a browser on the host or use the `curl` command `curl http://localhost:8080/manifest.json`.
 
-## Use in OpenSearch-Dashboard
-* Use the manifest url in Dashboard config yml file by 
-```
-map.opensearchManifestServiceUrl: "http://localhost:8080/manifest.json"
-```
 
-* Use the tiles url on Dashboard WMS options, simply use the tiles url by [OpenSearch WMS document](https://opensearch.org/docs/latest/dashboards/maptiles/)
+Confirm the server is running by opening each of the following links in a browser on your host or with a `curl` command (for example, `curl http://localhost:8080/manifest.json`).
+
+* Map manifest URL: `http://localhost:8080/manifest.json`
+* Map tiles URL: `http://localhost:8080/tiles/data/{z}/{x}/{y}.png`
+* Map tiles demo URL: `http://localhost:8080/`
+
+## Use the self-host maps server with OpenSearch Dashboards
+
+You can use the self-host maps server with OpenSearch Dashboards by either adding the parameter to `opensearch_dashboards.yml` or configuring the default WMS properties in OpenSearch Dashboards.
+
+### Option 1: Configure opensearch_dashboards.yml
+
+Configure the manifest URL in `opensearch_dashboards.yml`:
+
+`map.opensearchManifestServiceUrl: "http://localhost:8080/manifest.json"`
+
+### Option 2: Configure Default WMS properties in OpenSearch Dashboards
+
+1. On the OpenSearch Dashboards console, select **Stack Management > Advanced Settings**.
+2. Locate `visualization:tileMap:WMSdefaults` under **Default WMS properties**.
+3. Change `"enabled": false` to `"enabled": true` and add the URL for the valid map server.
+
+## Licenses
+
+Tiles are generated per [Terms of Use for Natural Earth vector map data](https://www.naturalearthdata.com/about/terms-of-use/) and [Copyright and License for OpenStreetMap](https://www.openstreetmap.org/copyright).
+
+## Related links
+
+* [Self-host maps server](https://opensearch.org/docs/latest/dashboards/selfhost-maps-server/)
+* [Configure WMS map server](https://opensearch.org/docs/latest/dashboards/maptiles/)
+* [Region map visualizations](https://opensearch.org/docs/latest/dashboards/geojson-regionmaps/)
