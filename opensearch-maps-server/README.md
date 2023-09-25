@@ -41,10 +41,21 @@ Download the tiles set from the OpenSearch maps service. Two planet tiles sets a
 The planet tiles set for zoom level 10 (2 GB compressed/6.8 GB uncompressed) is approximately 10 times larger than the set for zoom level 8 (225 MB compressed/519 MB uncompressed).
 {: .note}
 
+Run the following command to download the tiles set and import it into the Docker volume:
 ```
 docker run \
     -e DOWNLOAD_TILES=https://maps.opensearch.org/offline/planet-osm-default-z0-z8.tar.gz \
     -v tiles-data:/usr/src/app/public/tiles/data/ \
+    opensearch/opensearch-maps-server \
+    import
+```
+
+Run the following command to import the tiles set from a local file:
+```
+docker run \
+    -e LOCAL_TILES=/tmp/planet-osm-default-z0-z8.tar.gz \
+    -v tiles-data:/usr/src/app/public/tiles/data/ \
+    -v ./planet-osm-default-z0-z8.tar.gz:/tmp/planet-osm-default-z0-z8.tar.gz \
     opensearch/opensearch-maps-server \
     import
 ```
