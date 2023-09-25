@@ -9,7 +9,7 @@ usage() {
     echo "    run: Serve tiles at /tile/data/{z}/{x}/{y}.png, manifest at /manifest.json"
     echo "environment variables:"
     echo "    DOWNLOAD_TILES: the url to download raster image tiles set from OpenSearch maps service"
-    echo "    LOCAL_TILES: the path to local raster image tiles set OpenSearch maps service"
+    echo "    LOCAL_TILES: the path in container to local raster image tiles set for OpenSearch maps service"
     echo "    HOST_URL: the host machine ip address"
 }
 
