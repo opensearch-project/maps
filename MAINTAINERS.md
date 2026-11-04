@@ -7,7 +7,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Maintainer              | GitHub ID                                             | Affiliation |
 |-------------------------|-------------------------------------------------------|-------------|
 | Heemin Kim              | [heemin32](https://github.com/heemin32)               | Amazon      |
-| Jack Mazanec            | [jmazanec15](https://github.com/jmazanec15)           | Amazon      |
 | Junqiu Lei              | [junqiu-lei](https://github.com/junqiu-lei)           | Amazon      |
 | Martin Gaievski         | [martin-gaievski](https://github.com/martin-gaievski) | Amazon      |
 | Naveen Tatikonda        | [naveentatikonda](https://github.com/naveentatikonda) | Amazon      |
@@ -20,3 +19,4 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Maintainer  | GitHub ID                                   | Affiliation |
 |-------------|---------------------------------------------|-------------|
 | Shivam Dhar | [Shivamdhar](https://github.com/Shivamdhar) | Amazon      |
+| Jack Mazanec | [jmazanec15](https://github.com/jmazanec15) | Amazon      |
